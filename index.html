@@ -1,0 +1,1087 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>La Journée de Sami</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Rubik:wght@400;500;600&family=JetBrains+Mono:wght@600&display=swap">
+<style>
+/* Layout: projector-first game stage. Illustrated scene of the current situation on the left, play panel on the right; stacks on phones. Single deliberate look. */
+:root{
+  --ink:#1d2340; --ink-soft:#4a5277; --paper:#fffaf2; --wall:#f3ead9; --desk:#e9dcc6;
+  --accent:#ff6b3d; --accent-ink:#ffffff; --sun:#ffc23d;
+  --good:#1fa774; --mid:#e8a317; --bad:#e0484d; --line:#d9ccb4;
+  --f-display:"Baloo 2","Trebuchet MS",system-ui,sans-serif;
+  --f-body:"Rubik",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+html,body{height:100%;margin:0}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{background:var(--wall);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45}
+*{box-sizing:border-box}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.app{min-height:100%;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px}
+@media (max-width:860px){.app{grid-template-columns:minmax(0,1fr);gap:12px}}
+
+/* ---------- Scene ---------- */
+.scene{background:#f3ead9;border:3px solid var(--ink);border-right:none;border-radius:22px 0 0 22px;overflow:hidden;display:flex;flex-direction:column;min-height:420px}
+@media (max-width:860px){.scene{border-radius:22px;border-right:3px solid var(--ink);min-height:0}}
+.scene-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border-bottom:3px solid var(--ink);background:var(--paper)}
+.scene-title{font-family:var(--f-display);font-weight:800;font-size:20px;line-height:1.1}
+.clock{font-family:var(--f-mono);font-size:20px;font-variant-numeric:tabular-nums;border:3px solid var(--ink);border-radius:10px;padding:2px 10px;background:var(--wall)}
+.stage{flex:1;display:flex;align-items:flex-end;min-height:260px;background:#f3ead9}
+.stage svg{width:100%;height:100%;display:block}
+.thought{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;padding:12px 14px;border-top:3px solid var(--ink);background:var(--paper);font-weight:500;font-size:17px}
+.thought .who{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;background:#3b5bdb;color:#fff;border-radius:999px;padding:4px 10px}
+.thought p{animation:pop .35s ease}
+@keyframes pop{from{transform:scale(.94);opacity:.3}to{transform:scale(1);opacity:1}}
+.fig{transform-box:fill-box;transform-origin:bottom center}
+.fig.bob{animation:bob 2.8s ease-in-out infinite}
+.fig.jump{animation:jump .7s ease}
+.fig.shake{animation:shake .5s ease}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes jump{0%{transform:translateY(0)}40%{transform:translateY(-18px)}100%{transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.ring{animation:ring .5s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:center}
+@keyframes ring{from{transform:rotate(-10deg)}to{transform:rotate(10deg)}}
+.blink{animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:.15}}
+
+/* ---------- Panel ---------- */
+.panel{background:var(--paper);border:3px solid var(--ink);border-radius:0 22px 22px 0;padding:22px 26px;display:flex;flex-direction:column;gap:16px;min-width:0}
+@media (max-width:860px){.panel{border-radius:22px;padding:18px}}
+.topbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.player{display:flex;align-items:center;gap:8px;font-weight:600;min-width:0}
+.avatar{width:34px;height:34px;border-radius:50%;border:3px solid var(--ink);display:grid;place-items:center;font-family:var(--f-display);font-weight:800;color:#fff;flex:none}
+.player .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:16ch}
+.chip{font-family:var(--f-mono);font-size:13px;letter-spacing:.06em;text-transform:uppercase;padding:5px 10px;border:2px solid var(--ink);border-radius:999px;background:var(--wall);white-space:nowrap}
+.chip.score{background:var(--ink);color:var(--paper);font-size:16px;font-variant-numeric:tabular-nums;position:relative}
+.plus{position:absolute;right:0;top:-24px;font-family:var(--f-display);font-weight:800;color:var(--good);font-size:22px;animation:rise 1.4s ease forwards;pointer-events:none}
+@keyframes rise{from{transform:translateY(8px);opacity:0}20%{opacity:1}to{transform:translateY(-18px);opacity:0}}
+.pips{display:flex;gap:5px}
+.pips i{width:12px;height:12px;border-radius:50%;border:2px solid var(--ink)}
+.pips i.done{background:var(--ink)}
+.pips i.now{background:var(--accent)}
+h1,h2,h3{font-family:var(--f-display);line-height:1.05;margin:0;text-wrap:balance}
+h1{font-size:clamp(40px,5.4vw,68px);font-weight:800}
+h2{font-size:clamp(26px,3vw,38px);font-weight:800}
+h3{font-size:20px;font-weight:600}
+p{margin:0}
+.lead{font-size:18px;color:var(--ink-soft);max-width:62ch}
+.eyebrow{font-family:var(--f-mono);font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.btn{border:3px solid var(--ink);border-radius:14px;background:var(--accent);color:var(--accent-ink);font-family:var(--f-display);font-weight:800;font-size:22px;padding:10px 24px;box-shadow:4px 4px 0 var(--ink);transition:transform .1s,box-shadow .1s}
+.btn:hover{transform:translate(-1px,-1px);box-shadow:5px 5px 0 var(--ink)}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:4px 4px 0 var(--ink)}
+.btn.ghost{background:var(--paper);color:var(--ink)}
+.btn.sm{font-size:17px;padding:6px 16px}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.situation{font-size:clamp(18px,1.6vw,22px);font-weight:500;line-height:1.38}
+.options{display:grid;gap:10px}
+.opt{display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;text-align:left;border:3px solid var(--ink);border-radius:16px;background:var(--paper);padding:10px 14px;box-shadow:3px 3px 0 var(--ink);transition:transform .12s,background .2s,opacity .25s,filter .25s}
+.opt .k{font-family:var(--f-display);font-weight:800;font-size:21px;width:40px;height:40px;border-radius:12px;border:3px solid var(--ink);display:grid;place-items:center;background:var(--wall)}
+.opt .tx{display:grid;gap:3px;min-width:0}
+.opt .main{font-size:clamp(15px,1.3vw,18px);font-weight:500}
+.opt .arg{font-size:14px;color:var(--ink-soft);font-style:italic}
+.opt:not(:disabled):hover{transform:translate(-2px,-2px);background:#fff0e6}
+.opt:disabled{cursor:default}
+.options.locked .opt{filter:blur(3px) grayscale(.6);opacity:.6}
+.opt.best{background:color-mix(in srgb,var(--good) 16%,var(--paper));border-color:var(--good)}
+.opt.best .k{background:var(--good);color:#fff;border-color:var(--good)}
+.opt.picked.wrong{background:color-mix(in srgb,var(--bad) 13%,var(--paper));border-color:var(--bad)}
+.opt.picked.meh{background:color-mix(in srgb,var(--mid) 18%,var(--paper));border-color:var(--mid)}
+.opt.dim{opacity:.45}
+
+.timer{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center;border:3px solid var(--ink);border-radius:16px;padding:10px 14px;background:var(--wall)}
+.timer .t{font-family:var(--f-mono);font-size:34px;line-height:1;font-variant-numeric:tabular-nums;min-width:2.6ch;text-align:center}
+.timer .lbl{display:flex;justify-content:space-between;gap:10px;font-weight:600;margin-bottom:6px;flex-wrap:wrap}
+.timer .bonus{font-family:var(--f-mono);color:var(--good);font-variant-numeric:tabular-nums}
+.bar{height:14px;border-radius:999px;background:var(--line);overflow:hidden;border:2px solid var(--ink)}
+.bar>b{display:block;height:100%;background:var(--good)}
+.timer.lock{background:#e8ecff}
+.timer.lock .bar>b{background:#3b5bdb}
+.timer.urgent .t{color:var(--bad)}
+.timer.urgent .bar>b{background:var(--bad)}
+
+.feedback{border:3px solid var(--ink);border-radius:16px;padding:14px 16px;display:grid;gap:8px;animation:pop .3s ease}
+.feedback.g{background:color-mix(in srgb,var(--good) 13%,var(--paper))}
+.feedback.m{background:color-mix(in srgb,var(--mid) 15%,var(--paper))}
+.feedback.b{background:color-mix(in srgb,var(--bad) 11%,var(--paper))}
+.pts{font-family:var(--f-mono);font-size:15px;font-variant-numeric:tabular-nums}
+.pts b{font-family:var(--f-display);font-size:26px}
+.notion{border-top:2px dashed var(--ink);padding-top:8px;display:grid;gap:4px}
+.notion .nt{font-family:var(--f-mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--accent)}
+.notion strong{font-family:var(--f-display);font-size:20px}
+
+.gauges{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 18px}
+@media (max-width:520px){.gauges{grid-template-columns:minmax(0,1fr)}}
+.g-item{display:grid;gap:6px}
+.g-head{display:flex;justify-content:space-between;font-weight:600;font-size:15px;gap:8px}
+.g-head span:last-child{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.g-bar{height:16px;border:2px solid var(--ink);border-radius:999px;overflow:hidden;background:var(--wall)}
+.g-bar b{display:block;height:100%;width:0;transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+
+.card{display:grid;gap:10px;padding:16px;border:3px solid var(--ink);border-radius:18px;background:var(--wall)}
+.bigclock{font-family:var(--f-mono);font-size:clamp(40px,5vw,64px);line-height:1}
+.verdict{font-family:var(--f-display);font-weight:800;font-size:clamp(34px,4.6vw,56px);line-height:1;color:var(--accent)}
+.settings{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:15px;color:var(--ink-soft)}
+.seg{display:inline-flex;border:2px solid var(--ink);border-radius:12px;overflow:hidden}
+.seg button{border:none;background:var(--paper);padding:6px 12px;font-weight:600}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.keys{font-size:13px;color:var(--ink-soft)}
+.field{display:grid;gap:6px}
+.field label{font-weight:600}
+.field input{border:3px solid var(--ink);border-radius:12px;padding:10px 14px;font-size:20px;background:#fff;width:100%;max-width:420px}
+.swatches{display:flex;flex-wrap:wrap;gap:10px}
+.swatches button{width:44px;height:44px;border-radius:50%;border:3px solid var(--ink);box-shadow:2px 2px 0 var(--ink)}
+.swatches button[aria-pressed="true"]{outline:4px solid var(--ink);outline-offset:3px}
+.board{display:grid;gap:6px}
+.board .r{display:grid;grid-template-columns:2.2ch auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:6px 10px;border:2px solid var(--line);border-radius:12px;background:var(--paper)}
+.board .r.me{border-color:var(--ink);background:#fff0e6}
+.board .rk{font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right}
+.board .dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--ink)}
+.board .tn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.board .sc{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.empty{color:var(--ink-soft);font-size:15px}
+.learn{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:620px){.learn{grid-template-columns:minmax(0,1fr)}}
+.learn .card{background:var(--paper);gap:6px}
+.learn h3{font-size:18px}
+.learn ul{margin:0;padding:0;list-style:none;display:grid;gap:4px;font-size:15px}
+.learn li,.nl li{display:grid;grid-template-columns:2.8em minmax(0,1fr);gap:6px}
+.nl ul{margin:0;padding:0;list-style:none;display:grid;gap:4px}
+.ok{color:var(--good);font-weight:800}.ko{color:var(--bad);font-weight:800}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+
+/* colored answers */
+.copt{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;text-align:left;border:3px solid var(--ink);border-radius:16px;padding:12px 14px;box-shadow:3px 3px 0 var(--ink);font-size:clamp(15px,1.35vw,19px);font-weight:500;transition:opacity .25s,filter .25s,transform .12s}
+.copt .k{font-family:var(--f-display);font-weight:800;font-size:22px;width:42px;height:42px;border-radius:12px;border:3px solid var(--ink);display:grid;place-items:center;background:#fff;color:var(--ink)}
+.copt .who{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;max-width:9em}
+.copt .who i{width:18px;height:18px;border-radius:50%;border:2px solid var(--ink)}
+.copt.click:hover{transform:translate(-2px,-2px)}
+.copt:disabled{cursor:default}
+.options.locked .copt{filter:blur(3px) grayscale(.5);opacity:.6}
+.copt.lose{opacity:.32}
+.copt.win{outline:5px solid var(--ink);outline-offset:2px}
+.copt.win .k{background:var(--ink);color:#fff}
+/* team scoreboard */
+.scores{display:flex;flex-wrap:wrap;gap:8px}
+.ts{display:inline-flex;align-items:center;gap:6px;border:2px solid var(--ink);border-radius:999px;padding:4px 10px 4px 4px;background:var(--paper);position:relative;font-weight:600;max-width:100%}
+.ts i{width:22px;height:22px;border-radius:50%;border:2px solid var(--ink);flex:none}
+.ts .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:12ch}
+.ts b{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.ts.off{opacity:.5}
+.ts.ans{background:#e6f7ef}
+.ts .plus{right:-4px}
+.status{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.status .ts{border-radius:12px}
+.results{display:grid;gap:6px}
+.results .rr{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:6px 10px;border:2px solid var(--line);border-radius:12px;background:var(--paper)}
+.badge{font-family:var(--f-display);font-weight:800;width:30px;height:30px;border-radius:8px;border:2px solid var(--ink);display:grid;place-items:center}
+.roles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:620px){.roles{grid-template-columns:minmax(0,1fr)}}
+.role{display:grid;gap:6px;text-align:left;border:3px solid var(--ink);border-radius:18px;padding:16px;background:var(--wall);box-shadow:4px 4px 0 var(--ink)}
+.role strong{font-family:var(--f-display);font-size:22px}
+.role:hover{transform:translate(-1px,-1px)}
+/* phone view */
+.app.phone{grid-template-columns:minmax(0,1fr)}
+.app.phone .scene{display:none}
+.app.phone .panel{border-radius:22px;max-width:560px;width:100%;margin:0 auto}
+.pad4{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.pad4 button{aspect-ratio:1/1;max-width:100%;border:3px solid var(--ink);border-radius:20px;box-shadow:4px 4px 0 var(--ink);font-family:var(--f-display);font-weight:800;font-size:clamp(48px,16vw,84px);line-height:1}
+.pad4 button:disabled{opacity:.35;cursor:not-allowed}
+.pad4 button.sel{outline:6px solid var(--ink);outline-offset:3px;opacity:1}
+.big{font-family:var(--f-display);font-weight:800;font-size:clamp(30px,8vw,46px);line-height:1.05}
+.note{border:2px dashed var(--ink);border-radius:14px;padding:10px 12px;font-size:15px;color:var(--ink-soft)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+
+
+<div class="app" id="app">
+  <section class="scene" aria-label="Illustration de la situation">
+    <div class="scene-head"><span class="scene-title" id="sceneTitle">NovaTech</span><span class="clock" id="clock">08:45</span></div>
+    <div class="stage" id="stage"></div>
+    <div class="thought"><span class="who">Sami</span><p id="thought">Aujourd'hui, c'est mon premier jour chez NovaTech…</p></div>
+  </section>
+  <main class="panel" id="panel" aria-live="polite"></main>
+</div>
+<canvas class="confetti" id="confetti"></canvas>
+
+<script>
+(function(){
+/* ================= DATA ================= */
+const SKILLS = {
+  com:{label:"Communication", color:"#3b5bdb"},
+  team:{label:"Travail d'équipe", color:"#1fa774"},
+  stress:{label:"Stress et temps", color:"#e8a317"},
+  emo:{label:"Intelligence émotionnelle", color:"#c2417a"}
+};
+const CHARS = {
+  sami:{name:"Sami",skin:"#d9996a",hair:"#1d2340",style:"short",shirt:"#3b5bdb",tie:"#ff6b3d"},
+  haddad:{name:"Mme Haddad",skin:"#e8b48a",hair:"#6b3a2a",style:"bun",shirt:"#7b4fd1"},
+  karim:{name:"Karim",skin:"#b97a4f",hair:"#2b1d14",style:"beard",shirt:"#2f9e6e"},
+  lina:{name:"Lina",skin:"#f0c39c",hair:"#8a4b22",style:"long",shirt:"#f2b632"},
+  benali:{name:"M. Benali",skin:"#d8a27a",hair:"#9aa0aa",style:"bald",shirt:"#4a5568",glasses:true},
+  client:{name:"Client",skin:"#c98e64",hair:"#3a2a20",style:"short",shirt:"#d9485a"}
+};
+/* option: [texte, argument, points] */
+const LEVELS = [
+ {time:"09:00", title:"Premier jour", skill:"com", sky:["#ffd9a8","#9fd3ff"],
+  intro:"Communiquer, ce n'est pas seulement parler : c'est s'assurer que le message est bien reçu. Les situations deviennent plus difficiles au fil du niveau.",
+  qs:[
+   {t:"Mme Haddad, ta manager, t'explique ta première mission en 3 minutes, entre deux réunions : « un tableau de bord des ventes pour vendredi, avec les chiffres du Sud ». Elle se lève déjà pour partir.",
+    say:"Les chiffres du Sud… mais de quelle période ? Pour qui ?",
+    sc:{bg:"meeting",wb:"text",wbText:"Vendredi !",people:[["sami",130,"sit","think","?"],["haddad",280,"stand","talk","!!"]],props:[["laptop",120],["clock",350,55]]},
+    o:[["Tu dis « C'est noté ! » et tu chercheras les détails tout seul.","Elle est pressée : ne pas la retenir montre que tu respectes son temps.",20],
+       ["« Pour être sûr : un tableau des ventes de la région Sud, sur quelle période, et qui va le lire ? »","20 secondes de questions évitent de refaire tout le travail vendredi.",100],
+       ["Tu lui enverras ce soir un long email avec toutes tes questions.","À l'écrit, tu laisses une trace et elle répond quand elle veut.",50],
+       ["Tu demanderas à un collègue ce qu'elle voulait dire.","Tes collègues la connaissent mieux et tu ne la déranges pas.",30]],
+    n:"Écoute active et reformulation",
+    l:"Reformuler (« Si je comprends bien… ») vérifie que le message reçu est le même que le message envoyé. Un email arrive trop tard, et un collègue ne sait pas ce que la manager avait en tête."},
+   {t:"Tu rencontres un client pour comprendre ses besoins sur un nouveau logiciel. Il répond par « oui », « non », « ça va ». Il semble méfiant.",
+    say:"Il ne dit presque rien… comment le faire parler ?",
+    sc:{bg:"meeting",wb:"chart",people:[["sami",120,"sit","think"],["client",280,"sit","neutral","…"]],props:[["coffee",200],["papers",240]]},
+    o:[["« Est-ce que vous êtes satisfait de votre outil actuel ? »","Une question simple, facile à répondre, qui le met à l'aise.",30],
+       ["Tu lui présentes toutes les fonctionnalités du logiciel.","S'il ne parle pas, autant lui montrer ce qu'on a à offrir.",10],
+       ["« Racontez-moi une journée type avec votre outil : qu'est-ce qui vous fait perdre du temps ? »","Une question ouverte l'invite à raconter, et ses frustrations apparaissent.",100],
+       ["Tu lui envoies un questionnaire de 30 questions à remplir chez lui.","Il sera plus à l'aise pour répondre seul, à son rythme.",20]],
+    n:"Questions ouvertes et questions fermées",
+    l:"Une question fermée (réponse oui/non) donne une information. Une question ouverte (comment, qu'est-ce que, racontez-moi…) donne une histoire, donc les vrais besoins. On ouvre d'abord, puis on ferme pour confirmer."},
+   {t:"Depuis deux semaines, Karim rend sa partie du rapport en retard. Résultat : tu restes tard tous les jeudis pour finir. Tu décides de lui en parler.",
+    say:"Comment lui dire sans créer un conflit ?",
+    sc:{bg:"open",people:[["karim",120,"sit","neutral"],["sami",280,"stand","worried","!"]],props:[["clock",330,50,"18:40"],["papers",130]]},
+    o:[["« Karim, tu es toujours en retard, ce n'est pas professionnel. »","Être franc, c'est plus honnête que tourner autour du pot.",10],
+       ["Tu en parles à la manager pour qu'elle règle le problème.","C'est son rôle de gérer les retards, pas le tien.",30],
+       ["Tu ne dis rien et tu continues de finir à sa place.","Éviter le conflit garde une bonne ambiance dans l'équipe.",0],
+       ["« Les deux derniers jeudis, ta partie est arrivée après 18h. J'ai dû rester tard et ça me fatigue. On peut fixer mercredi midi ? On éviterait le rush. »","Des faits, ton ressenti, une demande précise et un bénéfice pour vous deux.",100]],
+    n:"La méthode DESC",
+    l:"Décrire les faits sans juger, Exprimer son ressenti, Spécifier une demande concrète, annoncer les Conséquences positives. « Tu es toujours en retard » attaque la personne ; « les deux derniers jeudis » décrit un fait."},
+   {t:"Tu dois présenter un projet au directeur. Un collègue te conseille : « Ne te prends pas la tête avec le contenu ! Une étude prouve que 93 % de la communication est non verbale. Travaille juste ta posture et ta voix. »",
+    say:"93 %… c'est vraiment prouvé ?",
+    sc:{bg:"meeting",wb:"text",wbText:"93 % ?",people:[["benali",110,"sit","neutral"],["sami",290,"stand","think","?"]],props:[["papers",130]]},
+    o:[["Il a raison : tu passes ta soirée à travailler ta posture et ton ton.","C'est un chiffre très connu, cité dans beaucoup de formations.",10],
+       ["Tu te concentres uniquement sur le contenu : la posture, c'est superficiel.","Un directeur juge les chiffres et les arguments, pas les gestes.",40],
+       ["Tu apprends ta présentation par cœur, mot à mot.","Si tu connais tout par cœur, tu ne peux pas te tromper.",20],
+       ["Tu prépares un contenu solide, puis tu vérifies que ta posture et ta voix vont dans le même sens que ton message.","Le non-verbal renforce le message, il ne le remplace pas.",100]],
+    n:"La règle 7-38-55 de Mehrabian et son mythe",
+    l:"L'étude d'Albert Mehrabian (1967) portait seulement sur des mots isolés exprimant une émotion, quand les mots et le ton se contredisaient. Elle ne dit pas que 93 % de toute communication est non verbale. La vraie leçon : quand le verbal et le non-verbal ne sont pas cohérents, on croit le non-verbal. Il faut donc les deux, alignés."}
+  ]},
+ {time:"11:00", title:"La réunion projet", skill:"team", sky:["#bfe6ff","#6fbaf5"],
+  intro:"Une équipe n'est pas une simple addition de personnes. Sami découvre comment un groupe fonctionne vraiment.",
+  qs:[
+   {t:"Brainstorming pour trouver le nom de la nouvelle application. Lina propose une idée un peu folle. Le directeur fronce les sourcils. C'est toi qui animes la séance.",
+    say:"Il faut garder l'énergie du groupe…",
+    sc:{bg:"meeting",wb:"notes",people:[["lina",90,"sit","happy","idea"],["benali",200,"sit","worried"],["sami",320,"stand","think"]],props:[]},
+    o:[["« Intéressant, mais restons réalistes s'il vous plaît. »","Recadrer tôt évite de perdre du temps sur des idées irréalisables.",20],
+       ["Tu notes l'idée au tableau sans commentaire : « Qui rebondit dessus ? Encore 10 idées ! »","Pendant un brainstorming, on cherche la quantité ; on jugera plus tard.",100],
+       ["Tu demandes à chacun d'écrire une seule idée : sa meilleure.","Moins d'idées, mais de meilleure qualité.",30],
+       ["Tu laisses le directeur choisir directement.","Il connaît la stratégie : tout le monde gagne du temps.",10]],
+    n:"Les 4 règles du brainstorming (Osborn)",
+    l:"Alex Osborn a défini 4 règles : ne pas critiquer, viser la quantité, accueillir les idées folles, rebondir sur les idées des autres. On sépare toujours deux phases : produire sans juger, puis trier. Critiquer trop tôt fait taire les idées originales."},
+   {t:"Ton équipe existe depuis 3 semaines. Au début, tout le monde était poli. Maintenant, Karim et Lina se disputent sur la méthode de travail. Un collègue soupire : « Cette équipe est ratée, il faut la séparer. »",
+    say:"C'est vraiment fichu ?",
+    sc:{bg:"meeting",wb:"text",wbText:"Méthode ?",people:[["karim",90,"stand","angry","!!"],["sami",200,"sit","worried"],["lina",310,"stand","angry","!!"]],props:[]},
+    o:[["Tu proposes de changer la composition de l'équipe.","Si deux personnes ne s'entendent pas, mieux vaut les séparer vite.",20],
+       ["Tu fais comme si de rien n'était.","Les tensions finissent toujours par se calmer avec le temps.",10],
+       ["Tu proposes un atelier pour fixer ensemble les règles : qui décide quoi, comment on se parle.","Cette tension est une étape normale ; des règles communes permettent de la dépasser.",100],
+       ["Tu donnes raison à celui qui a le plus d'expérience.","L'expérience tranche et le débat s'arrête tout de suite.",30]],
+    n:"Le modèle de Tuckman",
+    l:"Bruce Tuckman (1965) décrit 4 étapes dans la vie d'une équipe : Forming (politesse), Storming (conflits), Norming (règles communes), Performing (efficacité). Le conflit n'est pas un échec, c'est la 2e étape normale. On en sort en construisant des règles ensemble."},
+   {t:"Le directeur présente un projet qu'il adore. En 5 minutes, tout le monde dit « oui, super ! ». Toi, tu as repéré un vrai risque dans le budget, mais personne d'autre ne semble inquiet.",
+    say:"Je suis peut-être le seul à voir le problème…",
+    sc:{bg:"meeting",wb:"go",people:[["karim",80,"sit","happy"],["lina",170,"sit","happy"],["sami",260,"sit","worried","?"],["benali",345,"stand","happy","!"]],props:[]},
+    o:[["Tu te tais : si tout le monde est d'accord, c'est sûrement toi qui te trompes.","Le groupe a plus d'expérience que toi, tu viens d'arriver.",0],
+       ["Tu en parles au directeur en privé après la réunion.","Tu évites de le contredire devant tout le monde.",60],
+       ["« Je suis enthousiaste aussi. Pour être solides, prenons 5 minutes pour lister ce qui pourrait mal tourner. J'ai une question sur le budget. »","Tu soutiens le projet tout en le protégeant, sans attaquer personne.",100],
+       ["« Ce projet va échouer, le budget est faux. »","Être direct fait gagner du temps à tout le monde.",20]],
+    n:"La pensée de groupe (groupthink)",
+    l:"Décrite par Irving Janis (1972) : quand un groupe cherche trop l'harmonie, il prend des décisions risquées sans les questionner. Antidotes : nommer un « avocat du diable », demander explicitement les risques, faire parler les plus jeunes avant le chef. Parler en privé, c'est mieux que rien, mais la décision est déjà prise."},
+   {t:"Projet à 5 personnes. Le travail n'avance pas. Chacun répète : « Je pensais que quelqu'un d'autre s'en occupait. » La manager te demande une solution.",
+    say:"Tout le monde pense que c'est l'autre…",
+    sc:{bg:"meeting",wb:"text",wbText:"Qui fait quoi ?",people:[["karim",80,"sit","neutral","zzz"],["lina",170,"sit","neutral","?"],["sami",260,"sit","think"],["haddad",345,"stand","worried","!"]],props:[["papers",130]]},
+    o:[["Ajouter deux personnes de plus dans l'équipe.","Plus de bras, c'est plus de travail fait.",10],
+       ["Organiser une réunion de motivation sur l'importance du projet.","Une équipe motivée travaille plus.",30],
+       ["Faire toi-même toutes les tâches importantes.","Si tu veux que ce soit bien fait, fais-le toi-même.",0],
+       ["Créer un tableau visible par tous : chaque tâche a un seul responsable nommé et une date.","Quand chacun est identifié, personne ne peut se cacher dans le groupe.",100]],
+    n:"L'effet Ringelmann et la matrice RACI",
+    l:"Maximilien Ringelmann a mesuré que plus un groupe tire sur une corde, moins chacun tire fort : c'est la « paresse sociale ». Ajouter des gens peut aggraver le problème. La solution : rendre chaque contribution visible. La matrice RACI indique pour chaque tâche qui Réalise, qui en est Responsable (une seule personne), qui est Consulté et qui est Informé."}
+  ]},
+ {time:"14:00", title:"Le rush", skill:"stress", sky:["#ffe6a8","#f5b56f"],
+  intro:"Tout arrive en même temps. Sami découvre que gérer son temps, c'est surtout faire des choix.",
+  qs:[
+   {t:"14h. Sur ton bureau : (1) un collègue veut ton avis « urgent » sur la couleur d'une slide, (2) le rapport client à rendre à 17h, (3) la formation que tu animes dans un mois, (4) 40 emails non lus.",
+    say:"Par où je commence ?",
+    sc:{bg:"desk",people:[["sami",200,"sit","worried","!!"]],props:[["laptop",200,"40"],["papers",95],["phone",305],["clock",345,40,"14:00"]]},
+    o:[["Les emails d'abord : en 20 minutes ta boîte est vide et tu as l'esprit libre.","Commencer par des petites victoires donne de l'élan.",20],
+       ["Le rapport client d'abord, un créneau bloqué pour la formation cette semaine, 2 minutes pour le collègue, les emails à 16h30.","Urgent et important d'abord, important planifié, le reste réduit.",100],
+       ["La slide du collègue d'abord : il a dit que c'était urgent.","Aider un collègue tout de suite crée de bonnes relations.",10],
+       ["La formation d'abord : c'est le plus important pour ta carrière.","Ce qui est important passe avant tout.",40]],
+    n:"La matrice d'Eisenhower",
+    l:"Deux questions : est-ce urgent ? est-ce important ? Urgent et important : je fais maintenant. Important mais pas urgent : je planifie (c'est là qu'on progresse). Urgent mais pas important : je délègue ou je réduis. Ni l'un ni l'autre : j'élimine. L'urgence des autres n'est pas forcément ta priorité."},
+   {t:"Ta manager te donne 2 semaines pour un dossier qui demande environ 3 jours de travail. Tu es soulagé : tu as tout ton temps.",
+    say:"Deux semaines, c'est large !",
+    sc:{bg:"desk",people:[["sami",200,"sit","happy"]],props:[["coffee",260],["calendar",70,40,"14 j"],["laptop",170]]},
+    o:[["Tu commences tranquillement, tu as le temps de bien faire.","Moins de pression, meilleure qualité.",20],
+       ["Tu attends la deuxième semaine : la pression te rendra plus efficace.","Beaucoup de gens travaillent mieux sous pression.",10],
+       ["Tu te fixes ta propre échéance à 4 jours, avec des étapes, et tu gardes le reste comme marge.","Une échéance courte et personnelle empêche le travail de s'étaler.",100],
+       ["Tu fais le dossier en un jour, sans relire, pour en être débarrassé.","Vite fait, c'est une chose de moins dans la tête.",30]],
+    n:"La loi de Parkinson",
+    l:"Selon Cyril Northcote Parkinson (1955), le travail s'étale pour remplir tout le temps disponible. Avec 2 semaines, une tâche de 3 jours en prendra 2. Solution : des échéances courtes et des étapes. La technique Pomodoro (25 minutes de concentration, 5 minutes de pause) aide aussi."},
+   {t:"Ton rapport est bon à 80 % depuis hier. Depuis, tu as passé 6 heures sur les marges, les couleurs et les tournures de phrases. Il reste 2 heures avant l'envoi et tu n'as pas encore vérifié les chiffres clés.",
+    say:"Encore une petite retouche…",
+    sc:{bg:"desk",people:[["sami",200,"sit","worried","…"]],props:[["laptop",200,"v12"],["papers",95],["papers",300],["clock",345,40,"15:00"]]},
+    o:[["Tu arrêtes la mise en forme, tu vérifies d'abord les chiffres clés, puis tu envoies.","Les chiffres sont ce que le client va vraiment lire.",100],
+       ["Tu continues à peaufiner : un rapport parfait montre ton sérieux.","Le premier rapport d'un nouveau, on s'en souvient.",10],
+       ["Tu demandes un délai pour le rendre parfait.","Mieux vaut un peu en retard qu'imparfait.",30],
+       ["Tu envoies tout de suite sans vérifier : il était déjà bon hier.","Inutile de toucher à ce qui marche.",40]],
+    n:"La loi de Pareto (80/20)",
+    l:"D'après le principe de Pareto, environ 20 % des efforts produisent 80 % des résultats. Les derniers 20 % de « perfection » coûtent souvent l'essentiel du temps. Le perfectionnisme est un piège : il faut repérer ce qui a vraiment de la valeur (ici, les chiffres) et s'y consacrer en premier."},
+   {t:"Tu remplaces ta manager pour la journée. Deadline demain. L'équipe est très détendue, presque trop. Un collègue te conseille : « Mets-leur une grosse pression, la peur fait travailler. »",
+    say:"Un peu de pression, c'est bien ou pas ?",
+    sc:{bg:"meeting",wb:"text",wbText:"Deadline : demain",people:[["karim",90,"sit","happy","zzz"],["lina",200,"sit","happy"],["sami",320,"stand","think","?"]],props:[["coffee",120],["alarm",230,45]]},
+    o:[["Tu annonces que toute erreur sera sanctionnée.","Sous la menace, plus personne ne traîne.",10],
+       ["Tu laisses l'équipe détendue : le stress est toujours mauvais.","Une équipe sans stress est une équipe heureuse.",30],
+       ["Tu fais tout le travail urgent toi-même pour ne stresser personne.","Tu protèges l'équipe en prenant la charge.",20],
+       ["Tu fixes un objectif clair et un peu ambitieux pour ce soir, un point d'étape à 16h, et tu restes disponible.","Un défi motivant crée la bonne dose de tension, sans la peur.",100]],
+    n:"La loi de Yerkes-Dodson",
+    l:"Robert Yerkes et John Dodson (1908) ont montré que la performance augmente avec la stimulation… jusqu'à un certain point. Trop peu de tension : ennui et lenteur. Trop : panique et erreurs. C'est une courbe en cloche. Le bon stress vient d'un défi clair et atteignable, pas de la peur."}
+  ]},
+ {time:"17:00", title:"Fin de journée sous tension", skill:"emo", sky:["#ff9f7a","#6b5bb8"],
+  intro:"Fatigue et émotions montent. Dernier niveau : l'intelligence émotionnelle, la compétence la plus difficile à maîtriser.",
+  qs:[
+   {t:"Un client appelle, furieux : sa livraison a 4 jours de retard et il a perdu une vente. Il parle fort et dit que votre entreprise est « nulle ». Tu as la solution : une livraison express demain.",
+    say:"J'ai la solution… je la lui donne tout de suite ?",
+    sc:{bg:"phone",people:[["sami",130,"sit","worried","!"]],props:[["laptop",150]],caller:"angry"},
+    o:[["Tu lui donnes immédiatement la solution de la livraison express.","Ce qu'il veut, c'est une solution, pas des mots.",40],
+       ["« Je comprends : vous avez perdu une vente à cause de ce retard, c'est vraiment frustrant. Je m'en occupe, voici ce que je vous propose… »","Il doit d'abord se sentir entendu ; ensuite il pourra écouter la solution.",100],
+       ["« Monsieur, calmez-vous, sinon je ne peux pas vous aider. »","On ne peut pas travailler avec quelqu'un qui crie.",10],
+       ["Tu expliques que le retard vient du transporteur, pas de vous.","C'est la vérité, et ça protège l'image de l'entreprise.",20]],
+    n:"L'empathie et la validation émotionnelle",
+    l:"Une personne en colère ne peut pas écouter une solution tant qu'elle ne s'est pas sentie entendue. Valider l'émotion (« c'est frustrant ») ne veut pas dire lui donner raison sur tout. Dire « calmez-vous » produit presque toujours l'effet inverse."},
+   {t:"17h20. Un chef d'un autre service t'écrit, avec ton directeur en copie : « Encore une erreur de votre équipe. On se demande à quoi vous servez. » La colère monte. Ta réponse est déjà à moitié écrite.",
+    say:"Je vais lui répondre, il va voir !",
+    sc:{bg:"desk",people:[["sami",200,"sit","angry","steam"]],props:[["laptop",200,"mail"],["clock",345,40,"17:20"]]},
+    o:[["Tu envoies ta réponse tout de suite, directeur en copie : il faut défendre ton équipe.","Ne pas répondre, c'est accepter l'accusation devant le directeur.",10],
+       ["Tu ignores complètement l'email.","Ne pas réagir, c'est la meilleure preuve de maturité.",30],
+       ["Tu supprimes ton brouillon, tu fais une pause, tu vérifies les faits puis tu proposes un appel.","Une réponse à froid, basée sur les faits, te donne le beau rôle.",100],
+       ["Tu transfères l'email à tes collègues pour avoir leur soutien.","Montrer comment on est traités renforce la solidarité.",0]],
+    n:"Le détournement émotionnel (Goleman)",
+    l:"Daniel Goleman, qui a popularisé l'intelligence émotionnelle, parle de « détournement émotionnel » : sous la colère, le cerveau émotionnel réagit avant le cerveau qui réfléchit. Il faut quelques secondes à quelques minutes pour reprendre le contrôle. Règle d'or : ne jamais répondre à chaud par écrit."},
+   {t:"Lina te dit gentiment : « Je peux te dire un truc ? En réunion, tu coupes souvent la parole aux autres. Je ne pense pas que tu t'en rendes compte. » Tu es pourtant sûr de ne jamais le faire.",
+    say:"Moi ? Je ne coupe jamais la parole…",
+    sc:{bg:"open",people:[["lina",120,"stand","neutral","…"],["sami",280,"stand","shock","?"]],props:[["coffee",200]]},
+    o:[["« Merci de me le dire. Tu aurais un exemple ? Et tu pourrais me faire signe si ça recommence ? »","Ce que les autres voient et pas toi est une information précieuse.",100],
+       ["« Je ne crois pas, tu dois confondre avec quelqu'un d'autre. »","Tu te connais mieux que personne.",0],
+       ["« C'est parce que les réunions sont trop longues, il faut bien avancer. »","Tu expliques ton comportement, c'est légitime.",20],
+       ["« D'accord, merci. » Puis tu ne parles plus en réunion pour ne déranger personne.","Si ça gêne les autres, autant se faire discret.",30]],
+    n:"La fenêtre de Johari",
+    l:"Créée par Joseph Luft et Harrington Ingham (1955), elle divise ce qu'on sait de nous en 4 zones : publique (connue de tous), cachée (connue de moi seul), aveugle (connue des autres, pas de moi), inconnue. Le feedback est le seul moyen de réduire sa zone aveugle. Le bon réflexe : remercier et demander un exemple."},
+   {t:"En réunion, Karim présente comme la sienne l'analyse que TU as faite seul pendant trois jours. Le directeur le félicite chaleureusement. Tu bouillonnes.",
+    say:"Attends… c'est MON travail !",
+    sc:{bg:"meeting",wb:"chart",people:[["benali",90,"sit","happy"],["sami",200,"sit","angry","!!"],["karim",320,"stand","happy","talk"]],props:[]},
+    o:[["Tu l'interromps : « Excusez-moi, c'est moi qui ai fait cette analyse, pas lui. »","Il faut rétablir la vérité devant le directeur, maintenant ou jamais.",30],
+       ["Tu ajoutes calmement : « Merci, content que l'analyse soit utile. Je peux détailler la méthode que j'ai utilisée. » Puis tu parles à Karim en privé.","Tu montres ta contribution sans attaquer, et tu règles le conflit en tête-à-tête.",100],
+       ["Tu ne dis rien et tu ne partages plus jamais ton travail avec Karim.","Tu te protèges pour l'avenir, sans faire de scène.",10],
+       ["Tu envoies un email au directeur après la réunion pour rétablir la vérité.","C'est discret et ça laisse une trace écrite.",50]],
+    n:"La communication non violente (CNV)",
+    l:"La méthode de Marshall Rosenberg suit 4 étapes : Observation, Sentiment, Besoin, Demande. En privé avec Karim : « Tout à l'heure, tu as présenté mon analyse sans me citer. Je me suis senti mis de côté. J'ai besoin que mon travail soit reconnu. La prochaine fois, peux-tu dire qui a fait quoi ? » S'affirmer sans agresser, c'est l'assertivité."}
+  ]}
+];
+const LETTERS=["A","B","C","D"];
+const LOCK=5, BONUS=50;
+const MAXSCORE = 16*(100+BONUS);
+const COLORS=["#3b5bdb","#1fa774","#e0484d","#e8a317","#7b4fd1","#c2417a"];
+
+/* ================= STATE ================= */
+const OCOL=[{bg:"#e0484d",fg:"#ffffff",name:"rouge"},{bg:"#3b5bdb",fg:"#ffffff",name:"bleu"},{bg:"#ffc23d",fg:"#1d2340",name:"jaune"},{bg:"#1fa774",fg:"#ffffff",name:"vert"}];
+const keyOf=n=>String(n||"").trim().toLowerCase().slice(0,24);
+const newTeam=(name,color,local)=>({name,color,local:!!local,score:0,skills:{com:0,team:0,stress:0,emo:0},hist:[]});
+const fresh=(keep={})=>({mode:"choose",screen:"intro",lvl:0,q:0,round:0,revealed:false,time:keep.time||30,
+  teams:keep.teams||{}, cur:{}, gains:{}, saved:false});
+let S = fresh();
+let tick=null, tStart=0, unlocked=false;
+const $=id=>document.getElementById(id);
+const panel=$("panel");
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const lsGet=k=>{try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+
+/* ================= SVG SCENE ================= */
+const INK="#1d2340";
+const MOODS={
+  happy:["M-10 -140 Q0 -129 10 -140","M-14 -161 L-5 -164 M5 -164 L14 -161"],
+  neutral:["M-7 -138 L7 -138","M-14 -161 L-5 -161 M5 -161 L14 -161"],
+  worried:["M-7 -136 Q0 -141 7 -136","M-14 -163 L-5 -159 M5 -159 L14 -163"],
+  sad:["M-9 -133 Q0 -143 9 -133","M-14 -158 L-5 -163 M5 -163 L14 -158"],
+  angry:["M-8 -135 Q0 -140 8 -135","M-14 -165 L-4 -158 M4 -158 L14 -165"],
+  think:["M-6 -138 Q2 -136 7 -139","M-14 -163 L-5 -161 M5 -162 L14 -165"],
+  shock:["","M-14 -166 L-5 -168 M5 -168 L14 -166"],
+  talk:["","M-14 -162 L-5 -164 M5 -164 L14 -162"]
+};
+const HAIR={
+  short:c=>`<path d="M-27 -152 C-28 -177 -10 -183 2 -182 C19 -181 29 -170 27 -150 C21 -162 8 -167 -4 -165 C-14 -164 -21 -160 -27 -152Z" fill="${c}"/>`,
+  bun:c=>`<circle cx="0" cy="-181" r="10" fill="${c}" stroke="${INK}" stroke-width="2.5"/><path d="M-27 -150 C-28 -177 -10 -181 2 -180 C19 -179 29 -170 27 -148 C20 -163 -18 -163 -27 -150Z" fill="${c}"/>`,
+  long:c=>`<path d="M-29 -150 C-31 -179 -10 -184 2 -183 C21 -182 32 -170 29 -148 L31 -122 L21 -124 L22 -150 C14 -163 -12 -164 -21 -151 L-21 -124 L-31 -122 Z" fill="${c}"/>`,
+  beard:c=>HAIR.short(c)+`<path d="M-24 -148 C-22 -122 22 -122 24 -148 C17 -134 -17 -134 -24 -148Z" fill="${c}"/>`,
+  bald:c=>`<path d="M-27 -150 C-28 -160 -24 -166 -19 -166 L-20 -150Z M27 -150 C28 -160 24 -166 19 -166 L20 -150Z" fill="${c}"/>`
+};
+function person(id,x,pose,mood,bubble,anim){
+  const c=CHARS[id], base = pose==="sit"?300:272;
+  const m=MOODS[mood]||MOODS.neutral;
+  let mouth = m[0] ? `<path d="${m[0]}" fill="none" stroke="${INK}" stroke-width="3.2" stroke-linecap="round"/>`
+                   : `<ellipse cx="0" cy="-137" rx="5" ry="${mood==="shock"?7:4.5}" fill="${INK}"/>`;
+  const cheeks = mood==="angry" ? `<circle cx="-15" cy="-142" r="5" fill="#e0484d" opacity=".55"/><circle cx="15" cy="-142" r="5" fill="#e0484d" opacity=".55"/>`
+                                : `<circle cx="-15" cy="-142" r="4.5" fill="#ff8a7a" opacity=".45"/><circle cx="15" cy="-142" r="4.5" fill="#ff8a7a" opacity=".45"/>`;
+  const legs = pose==="stand" ? `<rect x="-17" y="-62" width="13" height="62" rx="3" fill="#2a2f4a"/><rect x="4" y="-62" width="13" height="62" rx="3" fill="#2a2f4a"/><rect x="-21" y="-6" width="18" height="7" rx="3" fill="${INK}"/><rect x="3" y="-6" width="18" height="7" rx="3" fill="${INK}"/>` : "";
+  const tie = c.tie ? `<path d="M0 -104 L-5 -95 L0 -72 L5 -95Z" fill="${c.tie}" stroke="${INK}" stroke-width="2"/>` : "";
+  const glasses = c.glasses ? `<g fill="none" stroke="${INK}" stroke-width="2.4"><circle cx="-9" cy="-150" r="7"/><circle cx="9" cy="-150" r="7"/><path d="M-2 -150 L2 -150"/></g>` : "";
+  let arm="";
+  if(bubble==="talk"){ arm=`<path d="M28 -100 Q48 -120 52 -146" fill="none" stroke="${c.shirt}" stroke-width="11" stroke-linecap="round"/><circle cx="52" cy="-150" r="7" fill="${c.skin}" stroke="${INK}" stroke-width="2.5"/>`; bubble=null; }
+  const b = bubble ? bubbleSvg(bubble) : "";
+  return `<g transform="translate(${x} ${base})"><g class="fig ${anim||"bob"}">
+    ${legs}
+    <path d="M-34 -58 C-34 -104 -22 -117 0 -117 C22 -117 34 -104 34 -58 Z" fill="${c.shirt}" stroke="${INK}" stroke-width="3"/>
+    <path d="M-10 -116 L0 -103 L10 -116" fill="#fff" stroke="${INK}" stroke-width="2.4" stroke-linejoin="round"/>${tie}
+    <rect x="-7" y="-128" width="14" height="13" fill="${c.skin}" stroke="${INK}" stroke-width="2.5"/>
+    ${c.style==="long"?HAIR.long(c.hair):""}
+    <circle cx="0" cy="-150" r="26" fill="${c.skin}" stroke="${INK}" stroke-width="3"/>
+    ${c.style!=="long"?HAIR[c.style](c.hair):`<path d="M-26 -152 C-24 -176 24 -178 26 -150 C14 -164 -14 -164 -26 -152Z" fill="${c.hair}"/>`}
+    <circle cx="-9" cy="-150" r="3.2" fill="${INK}"/><circle cx="9" cy="-150" r="3.2" fill="${INK}"/>
+    <path d="${m[1]}" stroke="${INK}" stroke-width="2.8" stroke-linecap="round"/>
+    ${cheeks}${mouth}${glasses}${arm}${b}
+  </g></g>`;
+}
+function bubbleSvg(k){
+  if(k==="idea") return `<g transform="translate(30 -200)"><circle r="13" fill="#ffd84d" stroke="${INK}" stroke-width="2.5"/><rect x="-6" y="11" width="12" height="7" rx="2" fill="#9aa0aa" stroke="${INK}" stroke-width="2"/><path d="M-20 -14 L-14 -9 M0 -22 L0 -16 M20 -14 L14 -9" stroke="${INK}" stroke-width="2.5" stroke-linecap="round"/></g>`;
+  if(k==="steam") return `<g fill="none" stroke="#e0484d" stroke-width="3.5" stroke-linecap="round" class="blink"><path d="M-20 -186 q-6 -8 0 -16 q6 -8 0 -16"/><path d="M0 -188 q-6 -8 0 -16 q6 -8 0 -16"/><path d="M20 -186 q-6 -8 0 -16 q6 -8 0 -16"/></g>`;
+  const txt = {"?":"?","!":"!","!!":"!!","…":"…","zzz":"zzz"}[k]||k;
+  const w = Math.max(30, txt.length*11+16);
+  return `<g transform="translate(26 -204)"><rect x="0" y="-16" width="${w}" height="30" rx="14" fill="#fff" stroke="${INK}" stroke-width="2.5"/><path d="M6 12 L0 24 L16 13" fill="#fff" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/><text x="${w/2}" y="6" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="20" fill="${k==="!!"?"#e0484d":INK}">${txt}</text></g>`;
+}
+function prop(p){
+  const [type,x,y,txt]=p, T=216;
+  switch(type){
+    case "laptop": {
+      const screen = txt==="mail" ? `<rect x="-24" y="-38" width="48" height="30" rx="2" fill="#fff"/><path d="M-16 -32 L0 -21 L16 -32 M-16 -32 L16 -32 L16 -14 L-16 -14Z" fill="none" stroke="${INK}" stroke-width="2"/><circle cx="18" cy="-36" r="7" fill="#e0484d" class="blink"/><text x="18" y="-32" text-anchor="middle" font-size="10" font-weight="800" fill="#fff" font-family="sans-serif">!</text>`
+        : txt ? `<rect x="-24" y="-38" width="48" height="30" rx="2" fill="#fff"/><text x="0" y="-17" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="13" font-weight="600" fill="${txt==="40"?"#e0484d":INK}">${txt==="40"?"✉ 40":txt}</text>`
+        : `<rect x="-24" y="-38" width="48" height="30" rx="2" fill="#9fd3ff"/><path d="M-18 -20 L-8 -28 L2 -22 L16 -32" fill="none" stroke="${INK}" stroke-width="2"/>`;
+      return `<g transform="translate(${x} ${T})"><path d="M-30 -42 L30 -42 L30 -4 L-30 -4Z" fill="#5a6385" stroke="${INK}" stroke-width="3"/>${screen}<path d="M-40 -4 L40 -4 L44 2 L-44 2Z" fill="#c7cbe0" stroke="${INK}" stroke-width="3"/></g>`;}
+    case "papers": return `<g transform="translate(${x} ${T})"><rect x="-22" y="-8" width="44" height="8" fill="#fff" stroke="${INK}" stroke-width="2.5"/><rect x="-20" y="-16" width="44" height="8" fill="#fff" stroke="${INK}" stroke-width="2.5" transform="rotate(-4)"/><rect x="-24" y="-24" width="44" height="8" fill="#fff" stroke="${INK}" stroke-width="2.5" transform="rotate(3)"/></g>`;
+    case "coffee": return `<g transform="translate(${x} ${T})"><path d="M-10 -22 L10 -22 L8 0 L-8 0Z" fill="#fff" stroke="${INK}" stroke-width="2.5"/><path d="M10 -16 q8 0 7 7 q-1 5 -8 5" fill="none" stroke="${INK}" stroke-width="2.5"/><path d="M-3 -28 q-4 -5 0 -10 M4 -28 q-4 -5 0 -10" stroke="#9aa0aa" stroke-width="2" fill="none"/></g>`;
+    case "phone": return `<g transform="translate(${x} ${T})"><g class="ring"><rect x="-14" y="-20" width="28" height="20" rx="5" fill="#e0484d" stroke="${INK}" stroke-width="2.5"/><path d="M-18 -22 Q0 -34 18 -22" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/></g><path d="M-26 -30 l-6 -6 M26 -30 l6 -6 M0 -40 l0 -8" stroke="#e0484d" stroke-width="2.5" stroke-linecap="round" class="blink"/></g>`;
+    case "clock": return `<g transform="translate(${x} ${y})"><circle r="20" fill="#fff" stroke="${INK}" stroke-width="3"/><path d="M0 0 L0 -12 M0 0 L8 4" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>${txt?`<rect x="-24" y="24" width="48" height="18" rx="5" fill="${INK}"/><text x="0" y="37" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="12" fill="#fff">${txt}</text>`:""}</g>`;
+    case "calendar": return `<g transform="translate(${x} ${y})"><rect x="-28" y="-4" width="56" height="54" rx="6" fill="#fff" stroke="${INK}" stroke-width="3"/><rect x="-28" y="-4" width="56" height="15" rx="6" fill="#e0484d" stroke="${INK}" stroke-width="3"/><text x="0" y="38" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="20" fill="${INK}">${txt}</text></g>`;
+    case "alarm": return `<g transform="translate(${x} ${y})"><path d="M-14 10 L-14 -2 A14 14 0 0 1 14 -2 L14 10Z" fill="#e0484d" stroke="${INK}" stroke-width="3" class="blink"/><rect x="-20" y="10" width="40" height="8" rx="2" fill="${INK}"/></g>`;
+  }
+  return "";
+}
+function board(kind,txt){
+  let inner="";
+  if(kind==="notes"){ const c=["#ffd84d","#9fe3c4","#ffb3a8","#a9c4ff","#ffd84d","#ffb3a8"]; inner=c.map((col,i)=>`<rect x="${78+(i%3)*50}" y="${52+Math.floor(i/3)*38}" width="38" height="30" fill="${col}" stroke="${INK}" stroke-width="2" transform="rotate(${(i%2?3:-3)} ${97+(i%3)*50} ${67+Math.floor(i/3)*38})"/>`).join(""); }
+  else if(kind==="chart"){ inner=`<path d="M80 120 L80 56 M80 120 L220 120" stroke="${INK}" stroke-width="2.5"/><rect x="95" y="96" width="20" height="24" fill="#a9c4ff" stroke="${INK}" stroke-width="2"/><rect x="128" y="80" width="20" height="40" fill="#9fe3c4" stroke="${INK}" stroke-width="2"/><rect x="161" y="66" width="20" height="54" fill="#ffd84d" stroke="${INK}" stroke-width="2"/><rect x="194" y="58" width="20" height="62" fill="#ffb3a8" stroke="${INK}" stroke-width="2"/>`; }
+  else if(kind==="go"){ inner=`<text x="150" y="102" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="46" fill="#1fa774">GO !</text>`; }
+  else if(kind==="text"){ inner=`<text x="150" y="96" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="${txt.length>12?20:28}" fill="${INK}">${esc(txt)}</text>`; }
+  return `<rect x="66" y="38" width="168" height="96" rx="6" fill="#fff" stroke="${INK}" stroke-width="3"/><rect x="66" y="134" width="168" height="6" fill="#9aa0aa" stroke="${INK}" stroke-width="2"/>${inner}`;
+}
+function windowSvg(x,y,w,h,sky){
+  return `<defs><linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${sky[0]}"/><stop offset="1" stop-color="${sky[1]}"/></linearGradient></defs>
+  <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="url(#sky)" stroke="${INK}" stroke-width="3"/>
+  <g fill="#41496e">${[0,1,2,3,4].map(i=>`<rect x="${x+8+i*(w-16)/5}" y="${y+h-[30,48,24,40,34][i]}" width="${(w-16)/5-4}" height="${[30,48,24,40,34][i]-2}"/>`).join("")}</g>
+  <path d="M${x+w/2} ${y} L${x+w/2} ${y+h} M${x} ${y+h*0.55} L${x+w} ${y+h*0.55}" stroke="${INK}" stroke-width="3"/>`;
+}
+function caller(mood){
+  const angry = mood==="angry";
+  return `<g transform="translate(250 30)"><rect width="134" height="150" rx="16" fill="#fff" stroke="${INK}" stroke-width="3"/>
+    <rect x="8" y="8" width="118" height="22" rx="8" fill="${angry?"#e0484d":"#1fa774"}"/><text x="67" y="24" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="11" fill="#fff">APPEL CLIENT</text>
+    <svg x="17" y="34" width="100" height="112" viewBox="-60 -205 120 135" overflow="hidden">${person("client",0,"stand",mood,null,"none").replace('translate(0 272)','translate(0 0)')}</svg>
+    ${angry?`<g stroke="#e0484d" stroke-width="3" stroke-linecap="round" class="blink"><path d="M-10 60 l-12 -6 M-10 80 l-14 0 M-10 100 l-12 6"/></g>`:""}</g>`;
+}
+function drawScene(sc,lvl,outcome){
+  const sky=LEVELS[lvl].sky;
+  let bg=`<rect width="400" height="300" fill="#f3ead9"/><rect y="252" width="400" height="48" fill="#e3d4b8"/>`;
+  if(sc.bg==="meeting") bg+=board(sc.wb, sc.wbText||"")+windowSvg(266,30,112,96,sky);
+  else if(sc.bg==="desk"||sc.bg==="phone") bg+=windowSvg(sc.bg==="phone"?30:130,26,140,100,sky);
+  else if(sc.bg==="open") bg+=windowSvg(24,26,120,96,sky)+`<g transform="translate(360 210)"><rect x="-14" y="0" width="28" height="40" fill="#d9764a" stroke="${INK}" stroke-width="3"/><path d="M0 0 C-30 -20 -20 -60 0 -70 C20 -60 30 -20 0 0" fill="#2f9e6e" stroke="${INK}" stroke-width="3"/></g>`;
+  const table = `<rect x="0" y="214" width="400" height="12" fill="#c9965f" stroke="${INK}" stroke-width="3"/><rect x="0" y="226" width="400" height="80" fill="#a8774a" stroke="${INK}" stroke-width="3"/>`;
+  const props = (sc.props||[]).map(prop).join("");
+  const sitNames = sc.people.map(([id,x,pose])=>`<g transform="translate(${x} ${pose==="sit"?244:288})"><rect x="-34" y="-12" width="68" height="20" rx="10" fill="${INK}"/><text y="3" text-anchor="middle" font-family="Rubik, sans-serif" font-weight="600" font-size="12" fill="#fff">${CHARS[id].name}</text></g>`).join("");
+  const call = sc.bg==="phone" ? caller(outcome ? (outcome==="g"?"happy":outcome==="m"?"neutral":"angry") : sc.caller) : "";
+  // seated people sit behind the table; standing people are drawn in front so their whole body shows
+  const parts = sc.people.map((p,i)=>({p,svg:person(p[0],p[1],p[2],...moodFor(p,outcome))}));
+  const back = parts.filter(o=>o.p[2]==="sit").map(o=>o.svg).join("");
+  const front = parts.filter(o=>o.p[2]==="stand").map(o=>o.svg).join("");
+  $("stage").innerHTML = `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration de la situation">${bg}${call}${back}${table}${props}${front}${sitNames}</svg>`;
+}
+function moodFor(p,outcome){
+  const [id,,,mood,bub]=p;
+  if(!outcome) return [mood,bub,"bob"];
+  if(id==="sami") return [outcome==="g"?"happy":outcome==="m"?"neutral":"sad", null, outcome==="g"?"jump":outcome==="b"?"shake":"bob"];
+  return [outcome==="g"?"happy":outcome==="m"?"neutral":"angry", null, "bob"];
+}
+function introScene(){
+  $("stage").innerHTML = `<svg viewBox="0 0 400 300" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Sami devant l'entrée de NovaTech">
+    <rect width="400" height="300" fill="#f3ead9"/><rect y="252" width="400" height="48" fill="#e3d4b8"/>
+    ${windowSvg(26,26,130,100,LEVELS[0].sky)}
+    <rect x="236" y="40" width="140" height="212" rx="6" fill="#fff" stroke="${INK}" stroke-width="3"/><rect x="250" y="56" width="112" height="34" rx="6" fill="#3b5bdb"/><text x="306" y="79" text-anchor="middle" font-family="Baloo 2, sans-serif" font-weight="800" font-size="20" fill="#fff">NovaTech</text>
+    <rect x="270" y="110" width="72" height="142" fill="#a9c4ff" stroke="${INK}" stroke-width="3"/><circle cx="330" cy="184" r="4" fill="${INK}"/>
+    ${person("sami",170,"stand","happy","!")}
+  </svg>`;
+}
+function setHead(title,clock,thought){
+  $("sceneTitle").textContent=title; $("clock").textContent=clock;
+  const t=$("thought"); t.textContent=thought; t.style.animation="none"; void t.offsetWidth; t.style.animation="";
+}
+
+/* ================= LEADERBOARD ================= */
+let DB=null, boardRows=[], savedIds=[];
+function loadLocal(){ boardRows=(lsGet("sami-board")||[]).sort((a,b)=>b.score-a.score).slice(0,10); refreshBoard(); }
+function initBoard(){
+  loadLocal();
+  const use = window.claude && window.claude.use ? window.claude.use("db") : Promise.resolve(null);
+  use.then(db=>{
+    if(!db) return;
+    DB=db;
+    try{
+      DB.collection("scores").orderBy("score","desc").limit(10).onSnapshot(s=>{
+        boardRows=s.docs.map(d=>Object.assign({id:d.id},d.data())); refreshBoard();
+      },()=>{DB=null; loadLocal();});
+    }catch(e){DB=null; loadLocal();}
+  }).catch(()=>{});
+}
+async function saveScores(entries){
+  for(const entry of entries){
+    if(DB){
+      try{ const ref=DB.collection("scores").doc(); savedIds.push(ref.id); await ref.set(entry); continue; }catch(e){}
+    }
+    const list=lsGet("sami-board")||[]; const id="l"+Date.now()+Math.random().toString(36).slice(2,6); savedIds.push(id);
+    list.push(Object.assign({id},entry)); lsSet("sami-board",list.sort((a,b)=>b.score-a.score).slice(0,30));
+  }
+  if(!DB) loadLocal();
+}
+function boardHTML(){
+  if(!boardRows.length) return `<p class="empty">Aucune équipe n'a encore terminé la journée. Le classement apparaîtra ici.</p>`;
+  return `<div class="board">${boardRows.map((r,i)=>`<div class="r ${savedIds.includes(r.id)?"me":""}"><span class="rk">${i+1}</span><span class="dot" style="background:${esc(r.color||"#3b5bdb")}"></span><span class="tn">${esc(r.team||"Équipe")}</span><span class="sc">${Number(r.score)||0} pts</span></div>`).join("")}</div>`;
+}
+function refreshBoard(){ const el=$("board"); if(el) el.innerHTML=boardHTML(); }
+
+/* ================= ROOM (phones, PeerJS) ================= */
+let ROOM=null, roomState="ok";
+const CODE_CHARS="ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+const genCode=()=>Array.from({length:4},()=>CODE_CHARS[Math.floor(Math.random()*CODE_CHARS.length)]).join("");
+const peerId=code=>"samijeu-v1-"+code.toLowerCase();
+function makeHost(onChange){
+  const api={code:genCode(),status:"connecting",handler:null,last:null,players:new Map()};
+  api.presence=p=>{ api.last=p; api.players.forEach(x=>{ if(x.conn.open){ try{x.conn.send(p);}catch(e){} } }); return Promise.resolve(); };
+  api.peers=()=>[...api.players.values()].map(x=>({presence:x.presence,sameTab:false,updatedAt:x.updatedAt}));
+  api.onPeers=fn=>{api.handler=fn;};
+  const emit=()=>api.handler&&api.handler({peers:api.peers()});
+  function boot(){
+    if(typeof Peer==="undefined"){ api.status="error"; onChange(); return; }
+    const peer=new Peer(peerId(api.code),{debug:0});
+    api.peer=peer;
+    peer.on("open",()=>{api.status="ok"; onChange();});
+    peer.on("connection",conn=>{
+      conn.on("open",()=>{ api.players.set(conn.peer,{conn,presence:{},updatedAt:Date.now()}); if(api.last){ try{conn.send(api.last);}catch(e){} } emit(); });
+      conn.on("data",d=>{ if(d && typeof d==="object"){ api.players.set(conn.peer,{conn,presence:d,updatedAt:Date.now()}); emit(); } });
+      conn.on("close",()=>{ api.players.delete(conn.peer); emit(); });
+      conn.on("error",()=>{});
+    });
+    peer.on("disconnected",()=>{ try{peer.reconnect();}catch(e){} });
+    peer.on("error",e=>{
+      if(e.type==="unavailable-id"){ try{peer.destroy();}catch(_){} api.code=genCode(); boot(); return; }
+      if(api.status!=="ok"){ api.status="error"; onChange(); }
+    });
+  }
+  boot();
+  return api;
+}
+function makePlayer(code,onChange){
+  const api={code,status:"connecting",handler:null,mine:null,hostP:null,conn:null};
+  api.presence=p=>{ api.mine=p; if(api.conn && api.conn.open){ try{api.conn.send(p);}catch(e){} } return Promise.resolve(); };
+  api.peers=()=>api.hostP?[{presence:api.hostP,sameTab:false,updatedAt:Date.now()}]:[];
+  api.onPeers=fn=>{api.handler=fn;};
+  if(typeof Peer==="undefined"){ api.status="error"; setTimeout(onChange,0); return api; }
+  const peer=new Peer(undefined,{debug:0});
+  let retry=null;
+  function connect(){
+    clearTimeout(retry);
+    const conn=peer.connect(peerId(code),{reliable:true});
+    api.conn=conn;
+    conn.on("open",()=>{ api.status="ok"; if(api.mine){ try{conn.send(api.mine);}catch(e){} } onChange(); });
+    conn.on("data",d=>{ if(d && typeof d==="object"){ api.hostP=d; api.handler&&api.handler({peers:api.peers()}); } });
+    conn.on("close",()=>{ if(api.conn!==conn) return; api.status="lost"; api.hostP=null; onChange(); retry=setTimeout(connect,2500); });
+    conn.on("error",()=>{});
+  }
+  peer.on("open",connect);
+  peer.on("disconnected",()=>{ try{peer.reconnect();}catch(e){} });
+  peer.on("error",e=>{
+    if(e.type==="peer-unavailable"){ api.status="nohost"; onChange(); retry=setTimeout(connect,3000); }
+    else if(api.status!=="ok"){ api.status="error"; onChange(); }
+  });
+  return api;
+}
+
+function onPeers(ch){
+  if(S.mode==="host") hostSeePeers(ch.peers);
+  else if(S.mode==="player") playerSeePeers(ch.peers);
+}
+
+/* ================= HOST: teams & presence ================= */
+let livePlayers = new Set();
+function teamList(){ return Object.entries(S.teams).map(([k,t])=>Object.assign({key:k},t)); }
+function ranking(){ return teamList().sort((a,b)=>b.score-a.score); }
+function hostSeePeers(peers){
+  const live=new Set(); let changed=false;
+  for(const p of peers){
+    const pr=p.presence||{};
+    if(pr.role!=="player" || typeof pr.team!=="string") continue;
+    const name=pr.team.trim().slice(0,24); if(!name) continue;
+    const k=keyOf(name);
+    live.add(k);
+    const color = /^#[0-9a-f]{6}$/i.test(pr.color||"") ? pr.color : "#3b5bdb";
+    if(!S.teams[k]){ S.teams[k]=newTeam(name,color,false); changed=true; }
+    else if(S.teams[k].color!==color && !S.teams[k].local){ S.teams[k].color=color; changed=true; }
+    const a=pr.ans;
+    if(S.screen==="question" && !S.revealed && unlocked && a && a.round===S.round && Number.isInteger(a.i) && a.i>=0 && a.i<4 && !S.cur[k]){
+      S.cur[k]={i:a.i, rem:remaining()}; changed=true;
+    }
+  }
+  const before=[...livePlayers].join("|"), after=[...live].join("|");
+  livePlayers=live;
+  if(changed || before!==after){
+    if(S.screen==="lobby") renderLobby();
+    else if(S.screen==="question" && !S.revealed){ updateStatus(); if(allAnswered()) reveal(); }
+    else refreshScoreStrip();
+  }
+}
+function activeTeams(){ return teamList().filter(t=>t.local || livePlayers.has(t.key)); }
+function allAnswered(){ const a=activeTeams(); return a.length>0 && a.every(t=>S.cur[t.key]); }
+function hostBroadcast(){
+  if(!ROOM || S.mode!=="host") return;
+  const Q = (S.screen==="question") ? LEVELS[S.lvl].qs[S.q] : null;
+  const best = Q ? Q.o.findIndex(o=>o[2]===Math.max(...Q.o.map(x=>x[2]))) : -1;
+  const payload={
+    role:"host", phase:S.screen, round:S.round, lvl:S.lvl, q:S.q, revealed:!!S.revealed,
+    title: LEVELS[S.lvl] ? LEVELS[S.lvl].title : "",
+    best: S.revealed ? best : -1,
+    res: S.revealed ? Object.entries(S.cur).map(([k,c])=>[k,c.i,(S.gains[k]||0)]).slice(0,24) : [],
+    scores: ranking().slice(0,24).map(t=>[t.key,t.name.slice(0,24),t.score])
+  };
+  ROOM.presence(payload).catch(()=>{});
+}
+
+/* ================= HOST: UI helpers ================= */
+function qIndex(){ return S.lvl*4+S.q; }
+function scoreStrip(){
+  const r=ranking();
+  if(!r.length) return `<p class="empty">Aucune équipe connectée.</p>`;
+  return `<div class="scores" id="strip">${r.map(t=>{
+    const g=S.gains[t.key];
+    const off = !t.local && !livePlayers.has(t.key);
+    return `<span class="ts ${off?"off":""}"><i style="background:${esc(t.color)}"></i><span class="n">${esc(t.name)}</span><b>${t.score}</b>${S.revealed&&g?`<span class="plus">+${g}</span>`:""}</span>`;
+  }).join("")}</div>`;
+}
+function refreshScoreStrip(){ const el=$("strip"); if(el) el.outerHTML=scoreStrip(); }
+function topbar(){
+  const pips=Array.from({length:16},(_,i)=>`<i class="${i<qIndex()?"done":i===qIndex()?"now":""}"></i>`).join("");
+  return `<div class="topbar"><div class="pips" aria-label="Situation ${qIndex()+1} sur 16">${pips}</div><span class="chip">Situation ${qIndex()+1}/16</span></div>${scoreStrip()}`;
+}
+function stopTimer(){ if(tick){clearInterval(tick); tick=null;} }
+function remaining(){ return Math.max(0, S.time-(performance.now()-tStart)/1000); }
+function clockFor(){ const [h]=LEVELS[S.lvl].time.split(":").map(Number); return String(h).padStart(2,"0")+":"+String(S.q*15).padStart(2,"0"); }
+
+/* ================= SCREENS ================= */
+function render(){
+  stopTimer();
+  $("app").classList.toggle("phone", S.mode==="player");
+  if(S.mode==="choose") return chooseRole();
+  if(S.mode==="player") return renderPlayer();
+  ({intro:hostIntro,lobby:renderLobby,level,question,levelEnd,final})[S.screen]();
+  hostBroadcast();
+}
+
+function chooseRole(){
+  introScene(); setHead("NovaTech","08:45","Aujourd'hui, c'est mon premier jour chez NovaTech. Vous allez m'aider ?");
+  const phoneNote = "Scannez le QR code du tableau ou entrez le code de la partie.";
+  panel.innerHTML=`
+    <span class="eyebrow">Jeu de soft skills · monde du travail</span>
+    <h1>La Journée de Sami</h1>
+    <p class="lead">Les groupes conseillent Sami pendant sa première journée de travail : 16 situations de plus en plus difficiles, chacune avec une notion à découvrir. Chaque groupe répond depuis son téléphone.</p>
+    <div class="roles">
+      <button class="role" id="rHost" type="button"><strong>Animer la partie</strong><span>Sur l'ordinateur projeté au tableau.</span></button>
+      <button class="role" id="rPlayer" type="button"><strong>Rejoindre avec mon téléphone</strong><span>${esc(phoneNote)}</span></button>
+    </div>
+    <div class="card"><h3>Classement</h3><div id="board">${boardHTML()}</div></div>`;
+  $("rHost").onclick=()=>{ S.mode="host"; S.screen="lobby"; if(!ROOM){ ROOM=makeHost(()=>{ if(S.screen==="lobby") renderLobby(); hostBroadcast(); }); ROOM.onPeers(onPeers); } render(); };
+  $("rPlayer").onclick=()=>{ S.mode="player"; render(); };
+}
+function hostIntro(){ S.screen="lobby"; renderLobby(); }
+
+let confirmBack=false;
+function renderLobby(){
+  introScene(); setHead("Accueil NovaTech","08:50","Combien de groupes vont me conseiller aujourd'hui ?");
+  const t=teamList();
+  const joinUrl = location.href.split("#")[0]+"#"+(ROOM?ROOM.code:"");
+  const phones = !ROOM || ROOM.status==="connecting"
+    ? `<p>Création de la partie…</p>`
+    : ROOM.status==="error"
+    ? `<p class="note">Impossible de créer la partie en ligne (réseau bloqué ?). Vérifiez la connexion internet, puis rechargez la page. Vous pouvez quand même jouer avec un groupe sur cet écran.</p>`
+    : `<div class="row" style="align-items:flex-start;gap:20px"><div id="qr" style="background:#fff;padding:8px;border:3px solid var(--ink);border-radius:12px;line-height:0"></div>
+        <div style="display:grid;gap:6px;min-width:0"><span class="eyebrow">Code de la partie</span><span style="font-family:var(--f-mono);font-size:clamp(44px,6vw,72px);line-height:1;letter-spacing:.12em">${esc(ROOM.code)}</span>
+        <p>Scannez le QR code, ou ouvrez le jeu sur un téléphone, choisissez <strong>Rejoindre avec mon téléphone</strong> et entrez ce code.</p>
+        <p class="keys" style="word-break:break-all">${esc(joinUrl)}</p></div></div>`;
+  panel.innerHTML=`
+    <span class="eyebrow">Salle d'attente</span>
+    <h2>Connexion des groupes</h2>
+    <div class="card">${phones}
+      <div class="status">${t.length?t.map(x=>`<span class="ts ${x.local||livePlayers.has(x.key)?"ans":"off"}"><i style="background:${esc(x.color)}"></i><span class="n">${esc(x.name)}</span><b>${x.local?"écran":livePlayers.has(x.key)?"connecté":"absent"}</b></span>`).join(""):`<p class="empty">En attente des groupes…</p>`}</div>
+    </div>
+    <details class="card"><summary><strong>Pas assez de téléphones ? Ajouter un groupe qui joue sur cet écran</strong></summary>
+      <form id="lf" class="row" style="margin-top:10px" novalidate>
+        <input id="lname" maxlength="24" placeholder="Nom du groupe" autocomplete="off" style="border:3px solid var(--ink);border-radius:12px;padding:8px 12px;font-size:18px;min-width:0;flex:1">
+        <button class="btn sm" type="submit">Ajouter</button></form>
+      <p class="keys">Un seul groupe peut jouer sur l'écran : il répond en cliquant directement sur les réponses colorées.</p></details>
+    <div class="settings"><span>Temps par situation :</span><div class="seg" role="group" aria-label="Temps par situation">
+      ${[20,30,45].map(s=>`<button type="button" data-t="${s}" aria-pressed="${S.time===s}">${s} s</button>`).join("")}</div></div>
+    <div class="row"><button class="btn" id="go" ${activeTeams().length?"":"disabled"}>Commencer la journée (${activeTeams().length} groupe${activeTeams().length>1?"s":""})</button>
+      <button class="btn ghost sm" id="fs" type="button">Plein écran</button>
+      <button class="btn ghost sm" id="back" type="button">Retour</button></div>`;
+  panel.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{S.time=+b.dataset.t; renderLobby();});
+  $("lf").addEventListener("submit",e=>{
+    e.preventDefault(); const n=$("lname").value.trim(); if(!n) return;
+    for(const k in S.teams) if(S.teams[k].local) delete S.teams[k];
+    const used=new Set(teamList().map(x=>x.color));
+    S.teams[keyOf(n)]=newTeam(n.slice(0,24), COLORS.find(c=>!used.has(c))||COLORS[0], true);
+    renderLobby(); hostBroadcast();
+  });
+  const qr=$("qr"); if(qr && typeof QRCode!=="undefined"){ try{ new QRCode(qr,{text:joinUrl,width:170,height:170,correctLevel:QRCode.CorrectLevel.M}); }catch(e){} }
+  $("go").onclick=()=>{ for(const k in S.teams) if(!S.teams[k].local && !livePlayers.has(k)) delete S.teams[k]; S.lvl=0; S.screen="level"; render(); };
+  $("fs").onclick=()=>{try{(document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()).catch(()=>{});}catch(e){}};
+  $("back").onclick=()=>{ if(!confirmBack) { confirmBack=true; $("back").textContent="Quitter la partie ?"; return; } location.hash=""; location.reload(); };
+}
+
+function level(){
+  const L=LEVELS[S.lvl];
+  drawScene(L.qs[0].sc,S.lvl,null);
+  setHead(L.title,L.time,["Allez, c'est parti !","Réunion dans 5 minutes…","Le café ne suffira pas…","Dernier effort !"][S.lvl]);
+  S.revealed=false; S.gains={};
+  panel.innerHTML=`${topbar()}
+    <div class="card">
+      <span class="eyebrow">Niveau ${S.lvl+1} sur 4 · ${SKILLS[L.skill].label}</span>
+      <div class="bigclock">${L.time}</div>
+      <h2>${L.title}</h2>
+      <p class="lead">${L.intro}</p>
+      <p class="keys">4 notions à découvrir dans ce niveau.</p>
+    </div>
+    <div class="row"><button class="btn" id="go">Première situation</button></div>`;
+  $("go").onclick=()=>{S.q=0; startQuestion();};
+}
+function startQuestion(){ S.round++; S.cur={}; S.gains={}; S.revealed=false; S.screen="question"; render(); }
+
+function optionsHTML(Q, clickable){
+  const best=Math.max(...Q.o.map(o=>o[2]));
+  return Q.o.map((o,i)=>{
+    let cls="copt"+(clickable?" click":"");
+    let who="";
+    if(S.revealed){
+      cls += o[2]===best?" win":" lose";
+      who = Object.entries(S.cur).filter(([,c])=>c.i===i).map(([k])=>S.teams[k]?`<i title="${esc(S.teams[k].name)}" style="background:${esc(S.teams[k].color)}"></i>`:"").join("");
+    }
+    return `<button type="button" class="${cls}" data-i="${i}" ${clickable&&!S.revealed?"":"disabled"} style="background:${OCOL[i].bg};color:${OCOL[i].fg}"><span class="k">${LETTERS[i]}</span><span>${esc(o[0])}</span><span class="who">${who}</span></button>`;
+  }).join("");
+}
+function statusHTML(){
+  return `<div class="status" id="status">${activeTeams().map(t=>`<span class="ts ${S.cur[t.key]?"ans":""}"><i style="background:${esc(t.color)}"></i><span class="n">${esc(t.name)}</span><b>${S.cur[t.key]?"✓":"…"}</b></span>`).join("")}</div>`;
+}
+function updateStatus(){ const el=$("status"); if(el) el.outerHTML=statusHTML(); }
+
+function question(){
+  const L=LEVELS[S.lvl], Q=L.qs[S.q];
+  const localTeam=teamList().find(t=>t.local);
+  const best=Math.max(...Q.o.map(o=>o[2]));
+  let outcome=null;
+  if(S.revealed){
+    const vals=activeTeams().map(t=>S.cur[t.key]?Q.o[S.cur[t.key].i][2]:0);
+    const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
+    outcome = avg>=75?"g":avg>=40?"m":"b";
+  }
+  drawScene(Q.sc,S.lvl,outcome);
+  if(!S.revealed) setHead(L.title,clockFor(),Q.say);
+
+  let bottom="";
+  if(!S.revealed){
+    bottom=`<div class="timer lock" id="timer"><span class="t" id="tt">${LOCK}</span>
+      <div><div class="lbl"><span id="tl">Lecture obligatoire…</span><span class="bonus" id="tb"></span></div><div class="bar"><b id="tbar" style="width:100%"></b></div></div></div>
+      ${statusHTML()}
+      <div class="row"><button class="btn ghost sm" id="rev" type="button">Révéler la réponse</button></div>`;
+  } else {
+    const nbBest=activeTeams().filter(t=>S.cur[t.key] && Q.o[S.cur[t.key].i][2]===best).length;
+    const rows=ranking().filter(t=>t.local||livePlayers.has(t.key)||S.cur[t.key]).map(t=>{
+      const c=S.cur[t.key];
+      const badge = c ? `<span class="badge" style="background:${OCOL[c.i].bg};color:${OCOL[c.i].fg}">${LETTERS[c.i]}</span>` : `<span class="badge">–</span>`;
+      return `<div class="rr"><span class="dot" style="width:20px;height:20px;border-radius:50%;border:2px solid var(--ink);background:${esc(t.color)}"></span><span class="tn" style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.name)}</span>${badge}<span class="pts"><b>+${S.gains[t.key]||0}</b></span></div>`;
+    }).join("");
+    bottom=`<div class="feedback ${outcome}">
+      <h3>${nbBest} groupe${nbBest>1?"s":""} sur ${activeTeams().length} ${nbBest>1?"ont":"a"} trouvé la meilleure réponse</h3>
+      <div class="results">${rows}</div>
+      <div class="notion"><span class="nt">Nouvelle notion</span><strong>${esc(Q.n)}</strong><p>${esc(Q.l)}</p></div></div>
+      <div class="row"><button class="btn" id="next">${S.q<3?"Situation suivante":"Bilan du niveau"}</button></div>`;
+  }
+  panel.innerHTML=`${topbar()}
+    <span class="eyebrow">${clockFor()} · Situation ${S.q+1}/4 · ${SKILLS[L.skill].label}</span>
+    <p class="situation">${esc(Q.t)}</p>
+    <div class="options ${S.revealed?"":"locked"}" id="opts">${optionsHTML(Q, !!localTeam)}</div>${bottom}`;
+
+  if(!S.revealed){
+    unlocked=false; tStart=performance.now();
+    const win=S.time-LOCK;
+    if(localTeam) panel.querySelectorAll(".copt").forEach(b=>b.onclick=()=>{
+      if(!unlocked || S.cur[localTeam.key]) return;
+      S.cur[localTeam.key]={i:+b.dataset.i, rem:remaining()};
+      panel.querySelectorAll(".copt").forEach(x=>{x.disabled=true; if(x!==b) x.style.opacity=".55";});
+      updateStatus(); if(allAnswered()) reveal();
+    });
+    $("rev").onclick=()=>reveal();
+    const step=()=>{
+      const el=(performance.now()-tStart)/1000;
+      const tt=$("tt"), tl=$("tl"), tb=$("tb"), bar=$("tbar"), tm=$("timer");
+      if(!tt) return;
+      if(el<LOCK){ tt.textContent=Math.ceil(LOCK-el); bar.style.width=((LOCK-el)/LOCK*100)+"%"; return; }
+      if(!unlocked){ unlocked=true; tm.classList.remove("lock"); $("opts").classList.remove("locked"); tl.textContent="À vous ! Répondez sur vos téléphones."; hostBroadcast(); }
+      const rem=remaining();
+      tt.textContent=Math.ceil(rem);
+      bar.style.width=(rem/win*100)+"%";
+      tb.textContent="Bonus vitesse jusqu'à +"+Math.round(rem/win*BONUS);
+      if(rem<=5) tm.classList.add("urgent");
+      if(rem<=0) reveal();
+    };
+    step(); tick=setInterval(step,100);
+  } else {
+    $("next").onclick=()=>{ if(S.q<3){S.q++; startQuestion();} else {S.screen="levelEnd"; S.revealed=false; render();} };
+  }
+}
+
+function reveal(){
+  if(S.revealed) return;
+  stopTimer();
+  const L=LEVELS[S.lvl], Q=L.qs[S.q], win=S.time-LOCK;
+  const best=Math.max(...Q.o.map(o=>o[2]));
+  S.gains={};
+  let anyBest=false;
+  for(const t of activeTeams()){
+    const c=S.cur[t.key], team=S.teams[t.key];
+    let base=0, bonus=0;
+    if(c){ base=Q.o[c.i][2]; bonus=Math.round(c.rem/win*BONUS*base/100); }
+    team.score+=base+bonus; team.skills[L.skill]+=base; team.hist[qIndex()]={ok:base===best,base};
+    S.gains[t.key]=base+bonus;
+    if(base===best) anyBest=true;
+  }
+  S.revealed=true;
+  const vals=activeTeams().map(t=>S.cur[t.key]?Q.o[S.cur[t.key].i][2]:0);
+  const avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
+  setHead(L.title,clockFor(), avg>=75?"Merci les équipes, ça marche !":avg>=40?"Bon… les avis étaient partagés.":"Oups… la plupart sont tombés dans le piège.");
+  if(anyBest) burst(50);
+  question(); hostBroadcast();
+}
+
+function levelEnd(){
+  const L=LEVELS[S.lvl];
+  const r=ranking();
+  const lead=r[0];
+  const pct = lead ? Math.round(lead.skills[L.skill]/400*100) : 0;
+  drawScene(L.qs[3].sc,S.lvl,pct>=85?"g":pct>=55?"m":"b");
+  setHead(L.title,L.time.replace(":00",":59"), lead ? `${lead.name} mène la course !` : "Fin du niveau.");
+  const n=activeTeams().length||1;
+  const notions=L.qs.map((q,i)=>{const c=teamList().filter(t=>t.hist[S.lvl*4+i]&&t.hist[S.lvl*4+i].ok).length; return `<li><span class="${c>=n/2?"ok":"ko"}">${c}/${n}</span><span>${esc(q.n)}</span></li>`;}).join("");
+  const last=S.lvl===3;
+  panel.innerHTML=`${topbar()}
+    <span class="eyebrow">Fin du niveau ${S.lvl+1} · ${SKILLS[L.skill].label}</span>
+    <h2>${L.title} : classement</h2>
+    <div class="results">${r.map((t,i)=>`<div class="rr"><span class="badge">${i+1}</span><span style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;border:2px solid var(--ink);background:${esc(t.color)};vertical-align:-2px"></span> ${esc(t.name)}</span><span class="keys">niveau ${t.skills[L.skill]}/400</span><span class="pts"><b>${t.score}</b></span></div>`).join("")}</div>
+    <div class="card nl"><h3>Notions découvertes (groupes qui ont trouvé)</h3><ul>${notions}</ul></div>
+    <div class="row"><button class="btn" id="go">${last?"Résultat final":"Niveau suivant"}</button></div>`;
+  burst(60);
+  $("go").onclick=()=>{ if(last) S.screen="final"; else {S.lvl++; S.screen="level";} render(); };
+}
+
+function final(){
+  const r=ranking(), win=r[0];
+  const pct = win ? win.score/MAXSCORE : 0;
+  const v = pct>=0.75?["Promu !","Sami est nommé référent de l'équipe dès son premier jour.","g"]
+          : pct>=0.55?["Contrat confirmé","Sami a fait bonne impression. Encore quelques réflexes à travailler.","g"]
+          : pct>=0.35?["Période d'essai prolongée","Sami a de bonnes intentions, mais ses soft skills doivent progresser.","m"]
+          : ["Convoqué chez la DRH","La journée a été rude… Heureusement, les soft skills, ça s'apprend.","b"];
+  drawScene({bg:"open",people:[["haddad",110,"stand","happy"],["sami",270,"stand","happy"]],props:[]},3,v[2]);
+  setHead("Bilan","18:00", win ? `Bravo ${win.name} ! Merci à tous de m'avoir conseillé.` : "Quelle journée !");
+  if(!S.saved){
+    S.saved=true;
+    saveScores(r.filter(t=>t.hist.some(Boolean)).map(t=>({team:t.name.slice(0,24),color:t.color,score:t.score,good:t.hist.filter(h=>h&&h.ok).length,at:new Date().toISOString()})));
+  }
+  const n=r.length||1;
+  const learn=LEVELS.map((L,li)=>`<div class="card"><h3 style="color:${SKILLS[L.skill].color}">${SKILLS[L.skill].label}</h3><ul>${L.qs.map((q,i)=>{const c=r.filter(t=>t.hist[li*4+i]&&t.hist[li*4+i].ok).length;return `<li><span class="${c>=n/2?"ok":"ko"}" style="white-space:nowrap">${c}/${n}</span><span>${esc(q.n)}</span></li>`;}).join("")}</ul></div>`).join("");
+  panel.innerHTML=`
+    <span class="eyebrow">18:00 · Bilan de la journée</span>
+    <div class="verdict">${win?esc(win.name)+" gagne !":"Fin de partie"}</div>
+    <p class="lead">Avec les conseils de ${win?esc(win.name):"la classe"}, Sami obtient : <strong>${v[0]}</strong> ${v[1]}</p>
+    <div class="results">${r.map((t,i)=>`<div class="rr" style="${i===0?"border-color:var(--ink);background:#fff0e6":""}"><span class="badge">${i+1}</span><span style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span style="display:inline-block;width:14px;height:14px;border-radius:50%;border:2px solid var(--ink);background:${esc(t.color)};vertical-align:-2px"></span> ${esc(t.name)}</span><span class="keys">${t.hist.filter(h=>h&&h.ok).length}/16 justes</span><span class="pts"><b>${t.score}</b></span></div>`).join("")}</div>
+    <h2>Ce que nous avons appris</h2>
+    <p class="keys">Pour chaque notion : nombre de groupes qui ont trouvé la meilleure réponse.</p>
+    <div class="learn">${learn}</div>
+    <div class="card">
+      <h3>Les 3 idées à retenir</h3>
+      <p>1. <strong>La bonne réponse est rarement la plus rapide ou la plus confortable.</strong> Se taire « pour ne pas déranger », répondre à chaud « pour se défendre », tout faire soi-même « pour que ce soit bien fait » : ce sont les pièges les plus fréquents.</p>
+      <p>2. <strong>Les soft skills reposent sur des outils connus</strong> : DESC, Eisenhower, Tuckman, Johari, CNV… Ils s'apprennent et se réutilisent, ce n'est pas un talent inné.</p>
+      <p>3. <strong>Le fil rouge : les faits d'abord, les émotions reconnues, une demande claire.</strong> Avec un client, un collègue ou un directeur, la même logique fonctionne.</p>
+    </div>
+    <div class="card"><h3>Classement de toutes les parties</h3><div id="board">${boardHTML()}</div></div>
+    <div class="row"><button class="btn" id="again">Rejouer avec les mêmes groupes</button><button class="btn ghost sm" id="newgame">Nouvelle partie</button></div>`;
+  burst(160);
+  $("again").onclick=()=>{ const keep={}; for(const t of teamList()) keep[t.key]=newTeam(t.name,t.color,t.local); const tm=S.time, rd=S.round; S=fresh({teams:keep,time:tm}); S.round=rd; S.mode="host"; S.screen="level"; render(); };
+  $("newgame").onclick=()=>{ const tm=S.time, rd=S.round; S=fresh({time:tm}); S.round=rd; S.mode="host"; S.screen="lobby"; render(); };
+}
+
+/* ================= PLAYER (phone) ================= */
+let P = {name:"", color:COLORS[0], code:"", joined:false, host:null, round:-1, pick:null, lockUntil:0};
+let pTick=null;
+function playerSeePeers(peers){
+  let host=null;
+  for(const p of peers){ const pr=p.presence||{}; if(pr.role==="host" && !p.sameTab && (!host || p.updatedAt>host.updatedAt)) host=p; }
+  const hp = host ? host.presence : null;
+  if(hp === P.host) return;
+  P.host=hp;
+  if(hp && hp.phase==="question" && hp.round!==P.round){ P.round=hp.round; P.pick=null; P.lockUntil=Date.now()+LOCK*1000; }
+  if(P.joined) renderPlayer();
+}
+function myKey(){ return keyOf(P.name); }
+function renderPlayer(){
+  if(pTick){clearInterval(pTick); pTick=null;}
+  if(!P.joined){
+    const last=lsGet("sami-player")||{};
+    if(!P.name && last.name){ P.name=last.name; P.color=last.color||P.color; }
+    panel.innerHTML=`
+      <span class="eyebrow">La Journée de Sami · téléphone</span>
+      <h2>Rejoindre la partie</h2>
+      <form id="pf" class="card" novalidate>
+        <div class="field"><label for="pcode">Code de la partie (affiché au tableau)</label><input id="pcode" maxlength="4" autocomplete="off" autocapitalize="characters" placeholder="ex. K7PM" value="${esc(P.code)}" style="text-transform:uppercase;letter-spacing:.15em;font-family:var(--f-mono)"></div>
+        <div class="field"><label for="pname">Nom du groupe</label><input id="pname" maxlength="24" autocomplete="off" placeholder="ex. Les Négociateurs" value="${esc(P.name)}"></div>
+        <div class="field"><label>Couleur du groupe</label><div class="swatches" role="group" aria-label="Couleur du groupe">
+          ${COLORS.map(c=>`<button type="button" data-c="${c}" aria-label="Couleur" aria-pressed="${c===P.color}" style="background:${c}"></button>`).join("")}</div></div>
+        <p class="keys" id="perr" hidden>Entrez le code à 4 caractères et un nom de groupe.</p>
+        <button class="btn" type="submit">Rejoindre</button>
+      </form>
+      <button class="btn ghost sm" id="pback" type="button">Retour</button>`;
+    panel.querySelectorAll("[data-c]").forEach(b=>b.onclick=()=>{P.color=b.dataset.c; panel.querySelectorAll("[data-c]").forEach(x=>x.setAttribute("aria-pressed",x===b));});
+    $("pback").onclick=()=>{ location.hash=""; S.mode="choose"; render(); };
+    $("pf").addEventListener("submit",e=>{
+      e.preventDefault(); const n=$("pname").value.trim(); const code=$("pcode").value.trim().toUpperCase();
+      if(!n || !/^[A-Z0-9]{4}$/.test(code)){ $("perr").hidden=false; return; }
+      P.name=n.slice(0,24); P.code=code; P.joined=true; lsSet("sami-player",{name:P.name,color:P.color});
+      ROOM=makePlayer(code,()=>renderPlayer()); ROOM.onPeers(onPeers);
+      ROOM.presence({role:"player",team:P.name,color:P.color,ans:null});
+      renderPlayer();
+    });
+    return;
+  }
+  const hp=P.host;
+  const head=`<div class="topbar"><div class="player"><span class="avatar" style="background:${esc(P.color)}">${esc(P.name.charAt(0).toUpperCase())}</span><span class="nm">${esc(P.name)}</span></div>${hp?`<span class="chip score">${myScore(hp)} pts</span>`:""}</div>`;
+  if(ROOM && ROOM.status!=="ok"){
+    const msg = ROOM.status==="nohost" ? ["Partie introuvable","Vérifiez le code "+P.code+" affiché au tableau. Nouvel essai automatique…"]
+              : ROOM.status==="lost" ? ["Connexion perdue","Reconnexion en cours…"]
+              : ROOM.status==="error" ? ["Connexion impossible","Vérifiez votre connexion internet puis rechargez la page."]
+              : ["Connexion…","Connexion à la partie "+P.code+"…"];
+    panel.innerHTML=`${head}<p class="big">${esc(msg[0])}</p><p class="lead">${esc(msg[1])}</p><button class="btn ghost sm" id="pre" type="button">Changer de code</button>`;
+    $("pre").onclick=()=>{ location.hash=""; location.reload(); };
+    return;
+  }
+  if(!hp){ panel.innerHTML=`${head}<p class="big">En attente de l'animateur…</p><p class="lead">La partie commence dès que l'écran principal est prêt.</p>`; return; }
+  const rank=myRank(hp);
+  if(hp.phase==="lobby"||hp.phase==="intro"){
+    panel.innerHTML=`${head}<p class="big">Vous êtes connectés !</p><p class="lead">Regardez le grand écran : la partie va commencer.</p>`; return;
+  }
+  if(hp.phase==="level"){
+    panel.innerHTML=`${head}<span class="eyebrow">Niveau ${(hp.lvl|0)+1} sur 4</span><p class="big">${esc(hp.title||"")}</p><p class="lead">Préparez-vous : lisez bien chaque situation au tableau.</p>${rank?`<p class="chip">Classement : ${rank}</p>`:""}`; return;
+  }
+  if(hp.phase==="question" && !hp.revealed){
+    const locked = Date.now()<P.lockUntil;
+    panel.innerHTML=`${head}
+      <span class="eyebrow">Situation ${(hp.lvl|0)*4+(hp.q|0)+1}/16</span>
+      <p class="lead" id="pmsg">${P.pick!==null?`Réponse envoyée : <strong>${LETTERS[P.pick]}</strong>. Attendez la révélation.`:locked?`Lisez la situation au tableau… <strong id="plk">${Math.ceil((P.lockUntil-Date.now())/1000)}</strong> s`:"Choisissez votre réponse ! Plus vite = plus de points."}</p>
+      <div class="pad4">${[0,1,2,3].map(i=>`<button type="button" data-i="${i}" class="${P.pick===i?"sel":""}" style="background:${OCOL[i].bg};color:${OCOL[i].fg}" ${locked||P.pick!==null?"disabled":""} aria-label="Réponse ${LETTERS[i]} (${OCOL[i].name})">${LETTERS[i]}</button>`).join("")}</div>`;
+    panel.querySelectorAll(".pad4 button").forEach(b=>b.onclick=()=>{
+      if(P.pick!==null || Date.now()<P.lockUntil) return;
+      P.pick=+b.dataset.i;
+      ROOM && ROOM.presence({role:"player",team:P.name,color:P.color,ans:{round:hp.round,i:P.pick}}).catch(()=>{});
+      renderPlayer();
+    });
+    if(locked) pTick=setInterval(()=>{ if(Date.now()>=P.lockUntil){ renderPlayer(); } else { const el=$("plk"); if(el) el.textContent=Math.ceil((P.lockUntil-Date.now())/1000); } },250);
+    return;
+  }
+  if(hp.phase==="question" && hp.revealed){
+    const mine=(Array.isArray(hp.res)?hp.res:[]).find(r=>r[0]===myKey());
+    const ok = mine && mine[1]===hp.best;
+    const pts = mine ? Number(mine[2])||0 : 0;
+    panel.innerHTML=`${head}
+      <p class="big" style="color:${ok?"var(--good)":mine?"var(--mid)":"var(--bad)"}">${ok?"Bonne réponse !":mine?"Pas la meilleure…":"Pas de réponse"}</p>
+      <p class="lead">${mine?`Vous avez choisi <strong>${LETTERS[mine[1]]}</strong>. `:""}La meilleure réponse était <strong>${hp.best>=0?LETTERS[hp.best]:"?"}</strong>.</p>
+      <p class="big">+${pts} pts</p>${rank?`<p class="chip">Classement : ${rank}</p>`:""}
+      <p class="keys">Regardez le tableau pour découvrir la notion.</p>`;
+    if(ok) burst(40);
+    return;
+  }
+  if(hp.phase==="levelEnd"||hp.phase==="final"){
+    panel.innerHTML=`${head}<span class="eyebrow">${hp.phase==="final"?"Fin de la journée":"Fin du niveau"}</span>
+      <p class="big">${rank?`Vous êtes ${rank}`:"Bravo !"}</p><p class="lead">Score : ${myScore(hp)} pts. ${hp.phase==="final"?"Merci d'avoir conseillé Sami !":"Le niveau suivant arrive."}</p>`;
+    if(hp.phase==="final" && rank==="1er") burst(120);
+    return;
+  }
+  panel.innerHTML=`${head}<p class="lead">Regardez le grand écran.</p>`;
+}
+function myScore(hp){ const s=(Array.isArray(hp.scores)?hp.scores:[]).find(r=>r[0]===myKey()); return s?Number(s[2])||0:0; }
+function myRank(hp){ const list=Array.isArray(hp.scores)?hp.scores:[]; const i=list.findIndex(r=>r[0]===myKey()); if(i<0) return ""; return (i===0?"1er":(i+1)+"e")+" sur "+list.length; }
+
+/* ================= KEYBOARD (host, on-screen team) ================= */
+document.addEventListener("keydown",e=>{
+  if(e.target && e.target.tagName==="INPUT") return;
+  if(S.mode==="host" && S.screen==="question" && !S.revealed && unlocked){
+    const i=LETTERS.indexOf(e.key.toUpperCase());
+    if(i>=0){ const b=panel.querySelector(`.copt[data-i="${i}"]`); if(b && !b.disabled){ b.click(); e.preventDefault(); } }
+  }
+});
+
+/* ================= CONFETTI ================= */
+const cv=$("confetti"), cx=cv.getContext("2d"); let parts=[], raf=null;
+const reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function burst(n){
+  if(reduce) return;
+  cv.width=innerWidth; cv.height=innerHeight;
+  const cols=["#ff6b3d","#ffc23d","#1fa774","#3b5bdb","#c2417a"];
+  for(let i=0;i<n;i++) parts.push({x:innerWidth*(.2+Math.random()*.6),y:innerHeight*.35,vx:(Math.random()-.5)*12,vy:-Math.random()*12-4,r:Math.random()*6+4,c:cols[i%5],a:Math.random()*6,life:90+Math.random()*40});
+  if(!raf) loop();
+}
+function loop(){
+  cx.clearRect(0,0,cv.width,cv.height);
+  parts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.35;p.a+=.15;p.life--;cx.save();cx.translate(p.x,p.y);cx.rotate(p.a);cx.fillStyle=p.c;cx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);cx.restore();});
+  parts=parts.filter(p=>p.life>0&&p.y<cv.height+20);
+  raf=parts.length?requestAnimationFrame(loop):(cx.clearRect(0,0,cv.width,cv.height),null);
+}
+
+/* ================= BOOT ================= */
+const hashCode=(location.hash||"").replace("#","").toUpperCase();
+if(/^[A-Z0-9]{4}$/.test(hashCode)){ S.mode="player"; P.code=hashCode; }
+initBoard(); render();
+window.addEventListener("beforeunload",e=>{ if(S.mode==="host" && S.screen!=="lobby" && S.screen!=="final"){ e.preventDefault(); e.returnValue=""; } });
+})();
+
+</script>
+
+</body>
+</html>
